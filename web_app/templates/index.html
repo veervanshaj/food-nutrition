@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Nutrition Analysis</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --main-bg: #fff;
+      --primary: #2a4a3f;
+      --accent: #c3730a;
+      --light-bg: #fffbea;
+      --highlight: #c9b88a;
+      --gray-text: #666;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--main-bg);
+      color: #1a1a1a;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    header h1 {
+      color: var(--primary);
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #444;
+      font-size: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .step {
+      background-color: var(--light-bg);
+      border-radius: 10px;
+      padding: 32px;
+      position: relative;
+      text-align: center;
+    }
+
+    .step-number {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      background-color: var(--primary);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-icon {
+      border: 3px dotted var(--highlight);
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-icon i {
+      font-size: 32px;
+      color: var(--accent);
+    }
+
+    .step h2 {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      font-size: 16px;
+      color: var(--gray-text);
+      margin-bottom: 20px;
+      padding: 0 16px;
+    }
+
+    button, .btn-green, .btn-orange {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-orange {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .btn-green {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+    }
+
+    .analysis-section {
+      background-color: var(--primary);
+      color: white;
+      padding: 32px;
+      border-radius: 12px;
+      margin-top: 40px;
+    }
+
+    .analysis-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .analysis-header {
+      border-bottom: 2px solid var(--highlight);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .dish-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    #detected-dish {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .confidence-badge {
+      background: var(--light-bg);
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .health-card, .ingredients-card {
+      background: var(--light-bg);
+      color: var(--primary);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 24px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .suggestions-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+
+    .micro-grid, .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .micro-item, .macro-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .macro-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin: 0 auto 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .protein { background: rgba(42, 74, 63, 0.1); }
+    .carbs { background: rgba(195, 115, 10, 0.1); }
+    .fats { background: rgba(201, 184, 138, 0.1); }
+
+    .ingredients-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .ingredients-list li {
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 4px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dish-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+    .meal-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 2px solid var(--highlight);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px auto;
+  max-width: 400px;
+  padding: 15px;
+  background: var(--light-bg);
+  border-radius: 10px;
+  min-height: 100px;
+}
+
+.nutrition-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.6; }
+}
+
+.loading-animation {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.micro-value, .macro-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.micro-value::after, .macro-value::after {
+  content: 'g';
+  font-size: 0.8em;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+#sodium-value::after,
+#calcium-value::after,
+#iron-value::after {
+  content: 'mg';
+}
+
+/* add------------------------------ */
+.feedback-section {
+  background: var(--primary);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.feedback-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.feedback-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dish-select, .custom-dish-input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--highlight);
+  background: var(--light-bg);
+  color: var(--primary);
+  width: 100%;
+}
+
+.or-divider {
+  margin: 1rem 0;
+  position: relative;
+  color: var(--highlight);
+}
+
+.or-divider::before, .or-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background: var(--highlight);
+}
+
+.or-divider::before { left: 0; }
+.or-divider::after { right: 0; }
+
+.feedback-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  display: none;
+}
+
+.feedback-success {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4CAF50;
+}
+
+.feedback-error {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #f44336;
+}
+/* add------------------------------ */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Nutrition Analysis</h1>
+      <p>Upload a photo of your meal and our AI will analyze its nutritional content, providing personalized insights and suggestions.</p>
+    </header>
+
+    <section class="steps">
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-icon"><i class="fas fa-camera"></i></div>
+        <h2>Capture Your Meal</h2>
+        <p>Take a photo of your plate or upload an existing image from your gallery.</p>
+        <div style="display: flex; justify-content: center; gap: 12px;">
+          <button class="btn-orange" id="take-photo-btn"><i class="fas fa-camera"></i> Take Photo</button>
+          <label class="btn-green" style="cursor: pointer;">
+            <i class="fas fa-upload"></i> Upload
+            <input type="file" id="upload-input" style="display: none;" accept="image/*" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-number">2</div>
+        <svg class="loader" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" stroke="#2a4a3f" stroke-width="4" fill="none" stroke-dasharray="176" stroke-dashoffset="176">
+            <animate attributeName="stroke-dashoffset" values="176;0" dur="2s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+        <h2>AI Analysis</h2>
+        <p>Our AI identifies your dish, ingredients, and calculates its complete nutritional profile.</p>
+        <div id="nutrition-values" class="nutrition-grid">
+          <div class="nutrition-item loading-animation">
+            <div class="nutrition-label">Protein</div>
+            <div class="nutrition-value" id="protein-value">-</div>
+          </div>
+          <div class="nutrition-item loading-animation">
+            <div class="nutrition-label">Carbs</div>
+            <div class="nutrition-value" id="carbs-value">-</div>
+          </div>
+          <div class="nutrition-item loading-animation">
+            <div class="nutrition-label">Fats</div>
+            <div class="nutrition-value" id="fats-value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-number">3</div>
+        <img src="https://storage.googleapis.com/a1aa/image/4247da51-cc67-436a-97f8-ee6ad404140b.jpg" 
+             class="meal-image" 
+             alt="Meal Plate"
+             style="width: 120px; height: 120px;">
+        <h2>Personalized Insights</h2>
+        <p>Receive culturally relevant suggestions to enhance your meal's nutritional value.</p>
+        <button class="btn-green">See Example Analysis</button>
+      </div>
+    </section>
+
+    <section class="analysis-section" id="results" style="display: none;">
+      <div class="analysis-container">
+        <div class="analysis-header">
+          <div class="dish-info">
+            <h2 id="detected-dish"></h2>
+            <div class="confidence-badge">
+              <i class="fas fa-brain"></i>
+              <span id="confidence-value"></span> Confidence
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="health-column">
+            <div class="health-card">
+              <h3 class="section-title"><i class="fas fa-heartbeat"></i> Health Assessment</h3>
+              <div class="health-status">
+                <div class="status-message" id="healthiness-text"></div>
+                <div class="suggestions-box">
+                  <h4><i class="fas fa-lightbulb"></i> Improvement Suggestions</h4>
+                  <p id="suggestion-text"></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="micronutrient-grid">
+              <h3 class="section-title"><i class="fas fa-microscope"></i> Micronutrients</h3>
+              <div class="micro-grid">
+                <div class="micro-item">
+                  <i class="fas fa-candy-cane"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Sugar</span>
+                    <span class="micro-value" id="sugar-value">-</span>
+                  </div>
+                </div>
+                <div class="micro-item">
+                  <i class="fas fa-prescription-bottle"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Sodium</span>
+                    <span class="micro-value" id="sodium-value">-</span>
+                  </div>
+                </div>
+                <div class="micro-item">
+                  <i class="fas fa-wheat"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Fiber</span>
+                    <span class="micro-value" id="fiber-value">-</span>
+                  </div>
+                </div>
+                <div class="micro-item">
+                  <i class="fas fa-capsules"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Vitamin C</span>
+                    <span class="micro-value" id="vitamin-c-value">-</span>
+                  </div>
+                </div>
+                <div class="micro-item">
+                  <i class="fas fa-bone"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Calcium</span>
+                    <span class="micro-value" id="calcium-value">-</span>
+                  </div>
+                </div>
+                <div class="micro-item">
+                  <i class="fas fa-magnet"></i>
+                  <div class="micro-info">
+                    <span class="micro-label">Iron</span>
+                    <span class="micro-value" id="iron-value">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ingredients-column">
+            <div class="ingredients-card">
+              <h3 class="section-title"><i class="fas fa-list-ul"></i> Ingredients Analysis</h3>
+              <ul class="ingredients-list" id="ingredients-list"></ul>
+            </div>
+
+            <div class="macronutrient-card">
+              <h3 class="section-title"><i class="fas fa-chart-pie"></i> Macronutrients</h3>
+              <div class="macro-grid">
+                <div class="macro-item">
+                  <div class="macro-icon protein">
+                    <i class="fas fa-dumbbell"></i>
+                  </div>
+                  <span class="macro-label">Protein</span>
+                  <span class="macro-value" id="protein-value">-</span>
+                </div>
+                <div class="macro-item">
+                  <div class="macro-icon carbs">
+                    <i class="fas fa-bread-slice"></i>
+                  </div>
+                  <span class="macro-label">Carbs</span>
+                  <span class="macro-value" id="carbs-value">-</span>
+                </div>
+                <div class="macro-item">
+                  <div class="macro-icon fats">
+                    <i class="fas fa-oil-can"></i>
+                  </div>
+                  <span class="macro-label">Fats</span>
+                  <span class="macro-value" id="fats-value">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+<!-- add------------------------- -->
+<section class="feedback-section" id="feedback" style="display: none;">
+  <div class="feedback-container">
+    <h3>Improve Our AI Accuracy</h3>
+    <p>If the results are inaccurate, help us improve by categorizing this dish:</p>
+    
+    <div class="feedback-form">
+      <select id="dish-select" class="dish-select">
+        <option value="">Select from existing dishes</option>
+        <!-- Options will be populated by JavaScript -->
+      </select>
+      <div class="or-divider">OR</div>
+      <input type="text" id="custom-dish" class="custom-dish-input" 
+             placeholder="Enter new dish name">
+      <button class="btn-green" id="submit-feedback">
+        <i class="fas fa-brain"></i> Submit Improvement
+      </button>
+    </div>
+    
+    <div id="feedback-message" class="feedback-message"></div>
+  </div>
+</section>
+
+
+<!-- add------------------------- -->
+
+  </div>
+
+  <script>
+    document.getElementById('upload-input').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        document.getElementById('results').style.display = 'none';
+        
+        ['protein', 'carbs', 'fats', 'sugar', 'sodium', 'fiber', 
+         'vitamin_c', 'calcium', 'iron'].forEach(nutrient => {
+          const el = document.getElementById(`${nutrient.replace('_', '-')}-value`);
+          if (el) el.textContent = 'Analyzing...';
+        });
+
+        const predictionResponse = await fetch('/predict', { method: 'POST', body: formData });
+        const predictionData = await predictionResponse.json();
+        if (!predictionData.food) throw new Error('Food recognition failed');
+
+        const analysisResponse = await fetch('/get-food-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ foodName: predictionData.food })
+        });
+        const analysisData = await analysisResponse.json();
+
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('detected-dish').textContent = analysisData.food || 'Unknown dish';
+        document.getElementById('confidence-value').textContent = `${predictionData.confidence}%`;
+
+        // Update all nutrition values
+        ['protein', 'carbs', 'fats', 'sugar', 'sodium', 'fiber', 
+         'vitamin_c', 'calcium', 'iron'].forEach(nutrient => {
+          const elementId = nutrient.replace('_', '-') + '-value';
+          const el = document.getElementById(elementId);
+          if (el) el.textContent = analysisData.nutrition[nutrient] || 'N/A';
+        });
+
+        document.getElementById('healthiness-text').textContent = analysisData.healthiness || 'No health assessment available';
+        document.getElementById('suggestion-text').textContent = analysisData.suggestion || 'No specific suggestions available';
+
+        const ingredientsList = document.getElementById('ingredients-list');
+        ingredientsList.innerHTML = analysisData.ingredients.map(ing => `
+          <li>
+            <span>${ing.name}</span>
+            <div class="rating-stars">
+              ${Array(5).fill().map((_, i) => `
+                <i class="fas fa-star${i < ing.rating ? '' : '-o'}" 
+                   style="color: ${i < ing.rating ? '#ffd700' : '#ddd'};"></i>
+              `).join('')}
+            </div>
+          </li>
+        `).join('') || '<li>Ingredients analysis unavailable</li>';
+
+      } catch (error) {
+        console.error('Error:', error);
+        ['protein', 'carbs', 'fats', 'sugar', 'sodium', 'fiber', 
+         'vitamin_c', 'calcium', 'iron'].forEach(nutrient => {
+          const el = document.getElementById(`${nutrient.replace('_', '-')}-value`);
+          if (el) el.textContent = 'Error';
+        });
+      }
+    });
+
+    document.getElementById('upload-input').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Add loading animation
+  const nutritionItems = document.querySelectorAll('.nutrition-item');
+  nutritionItems.forEach(item => {
+    item.classList.add('loading-animation');
+    item.querySelector('.nutrition-value').textContent = '-';
+  });
+
+  try {
+    document.getElementById('results').style.display = 'none';
+    
+    const formData = new FormData();
+    formData.append('image', file);
+
+    // Simulate analysis delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const predictionResponse = await fetch('/predict', { method: 'POST', body: formData });
+    const predictionData = await predictionResponse.json();
+    
+    if (!predictionData.food) throw new Error('Food recognition failed');
+
+    const analysisResponse = await fetch('/get-food-info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ foodName: predictionData.food })
+    });
+    const analysisData = await analysisResponse.json();
+
+    // Remove loading animation
+    nutritionItems.forEach(item => item.classList.remove('loading-animation'));
+
+    // Update values with animation
+    ['protein', 'carbs', 'fats', 'sugar', 'sodium', 'fiber', 
+     'vitamin_c', 'calcium', 'iron'].forEach(nutrient => {
+      const elementId = nutrient.replace('_', '-') + '-value';
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.textContent = analysisData.nutrition[nutrient] || '0';
+        el.style.animation = 'fadeIn 0.5s ease-in';
+      }
+    });
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').style.animation = 'fadeIn 0.5s ease-in';
+
+  } catch (error) {
+    console.error('Error:', error);
+    nutritionItems.forEach(item => item.classList.remove('loading-animation'));
+  }
+});
+
+// ----------------------------for add dish
+
+// After showing results
+document.getElementById('results').style.display = 'block';
+document.getElementById('feedback').style.display = 'block';
+
+// Populate dish select options
+const dishOptions = [
+  'apple_pie', 'baby_back_ribs', 'baklava', 'beef_carpaccio', 'beef_tartare',
+  'beet_salad', 'beignets', 'bibimbap', 'bread_pudding', 'breakfast_burrito',
+  'bruschetta', 'caesar_salad', 'cannoli', 'caprese_salad', 'carrot_cake',
+  'ceviche', 'cheesecake', 'cheese_plate', 'chicken_curry', 'chicken_quesadilla',
+  'chicken_wings', 'chocolate_cake', 'chocolate_mousse', 'churros', 'clam_chowder',
+  'club_sandwich', 'crab_cakes', 'creme_brulee', 'croque_madame', 'cup_cakes',
+  'deviled_eggs', 'donuts', 'dumplings', 'edamame', 'eggs_benedict',
+  'escargots', 'falafel', 'filet_mignon', 'fish_and_chips', 'foie_gras',
+  'french_fries', 'french_onion_soup', 'french_toast', 'fried_calamari', 'fried_rice',
+  'frozen_yogurt', 'garlic_bread', 'gnocchi', 'greek_salad', 'grilled_cheese_sandwich',
+  'grilled_salmon', 'guacamole', 'gyoza', 'hamburger', 'hot_and_sour_soup',
+  'hot_dog', 'huevos_rancheros', 'hummus', 'ice_cream', 'lasagna',
+  'lobster_bisque', 'lobster_roll_sandwich', 'macaroni_and_cheese', 'macarons', 'miso_soup',
+  'mussels', 'nachos', 'omelette', 'onion_rings', 'oysters',
+  'pad_thai', 'paella', 'pancakes', 'panna_cotta', 'peking_duck',
+  'pho', 'pizza', 'pork_chop', 'poutine', 'prime_rib',
+  'pulled_pork_sandwich', 'ramen', 'ravioli', 'red_velvet_cake', 'risotto',
+  'samosa', 'sashimi', 'scallops', 'seaweed_salad', 'shrimp_and_grits',
+  'spaghetti_bolognese', 'spaghetti_carbonara', 'spring_rolls', 'steak', 'strawberry_shortcake',
+  'sushi', 'tacos', 'takoyaki', 'tiramisu', 'tuna_tartare',
+  'waffles'
+];
+
+
+const dishSelect = document.getElementById('dish-select');
+dishOptions.forEach(dish => {
+  const option = document.createElement('option');
+  option.value = dish;
+  option.textContent = dish.replace(/_/g, ' ').toUpperCase();
+  dishSelect.appendChild(option);
+});
+
+// Handle feedback submission
+document.getElementById('submit-feedback').addEventListener('click', async () => {
+  const dishName = document.getElementById('dish-select').value || 
+                   document.getElementById('custom-dish').value;
+  const file = document.getElementById('upload-input').files[0];
+  
+  if (!dishName) {
+    showFeedbackMessage('Please select or enter a dish name', 'error');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('dish', dishName);
+
+  try {
+    const response = await fetch('/save-image', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      showFeedbackMessage('Thank you for improving our AI! Your submission has been saved.', 'success');
+    } else {
+      showFeedbackMessage(result.error || 'Failed to save submission', 'error');
+    }
+  } catch (error) {
+    showFeedbackMessage('Network error - please try again', 'error');
+  }
+});
+
+function showFeedbackMessage(message, type) {
+  const messageDiv = document.getElementById('feedback-message');
+  messageDiv.textContent = message;
+  messageDiv.className = `feedback-message feedback-${type}`;
+  messageDiv.style.display = 'block';
+  
+  setTimeout(() => {
+    messageDiv.style.display = 'none';
+  }, 5000);
+}
+
+  </script>
+</body>
+</html>

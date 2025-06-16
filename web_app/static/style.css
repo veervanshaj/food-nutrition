@@ -1,0 +1,223 @@
+:root {
+  --main-bg: #fff;
+  --primary: #2a4a3f;
+  --accent: #c3730a;
+  --light-bg: #fffbea;
+  --highlight: #c9b88a;
+  --gray-text: #666;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--main-bg);
+  color: #1a1a1a;
+  padding: 40px;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+header h1 {
+  color: var(--primary);
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #444;
+  font-size: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.step {
+  background-color: var(--light-bg);
+  border-radius: 10px;
+  padding: 32px;
+  position: relative;
+  text-align: center;
+}
+
+.step-number {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon {
+  border: 3px dotted var(--highlight);
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon i {
+  font-size: 32px;
+  color: var(--accent);
+}
+
+.step h2 {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.step p {
+  font-size: 16px;
+  color: var(--gray-text);
+  margin-bottom: 20px;
+  padding: 0 16px;
+}
+
+.btn-orange {
+  background-color: var(--accent);
+  color: white;
+}
+
+.btn-green {
+  background-color: var(--primary);
+  color: white;
+}
+
+.loader {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+}
+
+.analysis-section {
+  background-color: var(--primary);
+  color: white;
+  padding: 32px;
+  border-radius: 12px;
+}
+
+.nutrition-card {
+  background-color: var(--light-bg);
+  color: var(--primary);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 16px;
+}
+
+.suggestion-box {
+  background: #f8fff0;
+  border-left: 3px solid #4CAF50;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+.ingredients li {
+  padding: 8px 12px;
+  background-color: rgba(0,0,0,0.1);
+  margin-bottom: 6px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px auto;
+  max-width: 400px;
+  padding: 15px;
+  background: var(--light-bg);
+  border-radius: 10px;
+}
+
+.micronutrient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.nutrient-item {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+}
+
+.nutrient-item i {
+  font-size: 24px;
+  color: #c9b88a;
+  margin-bottom: 8px;
+}
+
+.nutrient-label {
+  font-size: 12px;
+  color: #ddd;
+  margin-bottom: 4px;
+}
+
+.nutrient-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 3px;
+}
+
+.cultural-card {
+  background: var(--light-bg);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.meal-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+@media(min-width: 768px) {
+  .analysis-columns {
+    flex-direction: row;
+  }
+}
