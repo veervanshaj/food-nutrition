@@ -1,16 +1,27 @@
-from flask import Flask, render_template, request, jsonify
+import os
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import requests
 import re
-import os
 from pathlib import Path
 
-app = Flask(__name__, static_folder='static')
-model = tf.keras.models.load_model('../food_recognition_model.h5')
+# Get base directory paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
 
-with open("../classes.txt", "r") as f:
+app = Flask(__name__, 
+            static_folder=os.path.join(BASE_DIR, 'static'),
+            template_folder=os.path.join(BASE_DIR, 'templates'))
+
+# Load model with absolute path
+MODEL_PATH = os.path.join(ROOT_DIR, 'food_recognition_model.h5')
+model = tf.keras.models.load_model(MODEL_PATH)
+
+# Load classes with absolute path
+CLASSES_PATH = os.path.join(ROOT_DIR, 'classes.txt')
+with open(CLASSES_PATH, "r") as f:
     class_names = [line.strip() for line in f.readlines()]
 
 API_KEY = 'AIzaSyDsf3Zg0mPPSyb7F5YmXq6YQwCOUV2Mh94'
@@ -161,10 +172,9 @@ def get_food_info():
     except Exception as e:
         return jsonify({'error': 'Processing error'}), 500
 
-
-
-COMMUNITY_DATA_DIR = Path("community_dataset")
-DISH_LIST_FILE = COMMUNITY_DATA_DIR / "dish_list.txt"
+# Community dataset path with absolute path
+COMMUNITY_DATA_DIR = os.path.join(BASE_DIR, 'community_dataset')
+DISH_LIST_FILE = os.path.join(COMMUNITY_DATA_DIR, 'dish_list.txt')
 
 @app.route('/save-image', methods=['POST'])
 def save_image():
@@ -182,22 +192,26 @@ def save_image():
             return jsonify({'success': False, 'error': 'Invalid dish name'})
 
         # Create community dataset dir if needed
-        COMMUNITY_DATA_DIR.mkdir(exist_ok=True)
+        os.makedirs(COMMUNITY_DATA_DIR, exist_ok=True)
         
         # Create dish directory
-        dish_dir = COMMUNITY_DATA_DIR / dish_name
-        dish_dir.mkdir(exist_ok=True)
+        dish_dir = os.path.join(COMMUNITY_DATA_DIR, dish_name)
+        os.makedirs(dish_dir, exist_ok=True)
         
         # Save image
         image = request.files['image']
-        image_path = dish_dir / f"{len(list(dish_dir.glob('*')))+1}.jpg"
+        image_count = len([name for name in os.listdir(dish_dir) if os.path.isfile(os.path.join(dish_dir, name))])
+        image_path = os.path.join(dish_dir, f"{image_count + 1}.jpg")
         image.save(image_path)
         
         # Update dish list
-        with open(DISH_LIST_FILE, 'a+') as f:
-            f.seek(0)
-            existing_dishes = {line.strip().lower() for line in f}
-            if dish_name not in existing_dishes:
+        existing_dishes = set()
+        if os.path.exists(DISH_LIST_FILE):
+            with open(DISH_LIST_FILE, 'r') as f:
+                existing_dishes = {line.strip().lower() for line in f}
+        
+        if dish_name not in existing_dishes:
+            with open(DISH_LIST_FILE, 'a') as f:
                 f.write(dish_name + '\n')
         
         return jsonify({'success': True})
@@ -206,5 +220,16 @@ def save_image():
         print("Save image error:", e)
         return jsonify({'success': False, 'error': 'Server error saving image'})
 
+# Add these routes to serve root files for Vercel
+@app.route('/classes.txt')
+def serve_classes():
+    return send_from_directory(ROOT_DIR, 'classes.txt')
+
+@app.route('/food_recognition_model.h5')
+def serve_model():
+    return send_from_directory(ROOT_DIR, 'food_recognition_model.h5')
+
+# Vercel requires a handler but we'll create that separately
+# This remains for local execution
 if __name__ == '__main__':
-     app.run(debug=True, host='127.0.0.1', port=8000)
+    app.run(debug=True, host='127.0.0.1', port=8000)
