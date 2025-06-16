@@ -5,7 +5,8 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "installCommand": "pip install -r requirements.txt"
       }
     }
   ],
@@ -16,13 +17,11 @@
     },
     {
       "src": "/classes.txt",
-      "dest": "web_app/app.py",
-      "methods": ["GET"]
+      "dest": "web_app/app.py"
     },
     {
       "src": "/food_recognition_model.h5",
-      "dest": "web_app/app.py",
-      "methods": ["GET"]
+      "dest": "web_app/app.py"
     },
     {
       "src": "/(.*)",
