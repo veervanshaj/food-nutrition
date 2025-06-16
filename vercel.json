@@ -3,30 +3,13 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb"
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "web_app/static/$1"
-    },
-    {
-      "src": "/classes.txt",
-      "dest": "web_app/app.py",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/food_recognition_model.h5",
-      "dest": "web_app/app.py",
-      "methods": ["GET"]
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
-    }
+    { "src": "/static/(.*)", "dest": "web_app/static/$1" },
+    { "src": "/classes.txt", "dest": "api/index.py" },
+    { "src": "/food_recognition_model.h5", "dest": "api/index.py" },
+    { "src": "/(.*)", "dest": "api/index.py" }
   ]
 }
