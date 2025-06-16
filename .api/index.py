@@ -1,18 +1,22 @@
 from web_app.app import app as application
 import os
 
-# Serve root files
-@application.route('/classes.txt')
-def classes():
-    return application.send_static_file('../../classes.txt')
-
-@application.route('/food_recognition_model.h5')
-def model():
-    return application.send_static_file('../../food_recognition_model.h5')
-
-# Vercel handler
-# Vercel handler
+# Vercel handler function
 def handler(event, context):
-    with app.app_context():
-        response = app.full_dispatch_request()
-        return response
+    # Set environment variables if needed
+    os.environ['VERCEL'] = '1'
+    
+    # Process the event through Flask
+    with application.app_context():
+        response = application.full_dispatch_request()
+        
+        # Convert Flask response to Vercel format
+        return {
+            'statusCode': response.status_code,
+            'headers': dict(response.headers),
+            'body': response.get_data(as_text=True)
+        }
+
+# For local testing (if needed)
+if __name__ == '__main__':
+    application.run(host='0.0.0.0', port=8080)
